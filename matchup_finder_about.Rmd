@@ -54,6 +54,6 @@ Additional contextual features include the sample size of possessions for each m
 
 Data used to generate this app was obtained from [PBP Stats Tracking](https://tracking.pbpstats.com/) by way of [NBA.com](https://www.nba.com/stats/)
 
-App created by Alex Merg. Data and code available on GitHub.
+App created by Alex Merg. Data and code available on [GitHub](https://github.com/a-merg/nba_matchup_finder).
 
 <br></br>
