@@ -1,5 +1,5 @@
 
-### --- Matchup Finder --- ###
+### --- Matchup Finder App--- ###
 
 library(shiny)
 library(shinythemes)
@@ -14,13 +14,15 @@ library(prismatic)
 library(DT)
 library(scales)
 
-# Load data (sourced from PBPstats.com. Code used to clean and save dataset found in the Notes file)
+
+
+# Load data (sourced from PBPstats.com. Code used to clean and save dataset found in the global file)
 
 # File contains matchup data for all NBA matchup combinations from 2017-18 thru 2021-22 season.
-matchups <- read.csv("~/Data Science/Basketball/Projects/Matchup App/matchup_finder/matchups.csv")
-pbp_data <- read.csv("~/Data Science/Basketball/Projects/Matchup App/matchup_finder/pbp_ref_data.csv")
+matchups2 <- read.csv("matchups2.csv")
+pbp_data <- read.csv("pbp_ref_data.csv")
 
-# Load personal theme
+# Load personal plot theme
 theme_personal <- function (x) { 
   theme_minimal(base_size=12, base_family="Avenir") %+replace% 
     theme(
@@ -39,7 +41,7 @@ theme_personal <- function (x) {
 }
 
 # Create list of all unique players
-player_list <- matchups %>%
+player_list <- matchups2 %>%
   group_by(def_player, off_player) %>%
   summarize(matchup_min = sum(matchup_min),
             poss = sum(partial_poss)) %>%
@@ -52,30 +54,41 @@ def_player_list <- as.list(unique(player_list$def_player))
 
 
 # Create list of teams
-team_list <- as.list(unique(matchups$def_team))
+team_list <- as.list(unique(matchups2$def_team))
 
-# Add column for 2022 team
+# Add column for each players' 2022 team
 team_ref <- pbp_data %>%
   filter(season == "2021-22" | name == "Zion Williamson" | name == "Ben Simmons") %>%
-  group_by(entity_id, team_abbreviation) %>%
+  group_by(entity_id, name, team_abbreviation) %>%
   summarise(min = mean(minutes)) %>%
   rename(current_team = team_abbreviation) %>%
-  as.data.frame()
+  as.data.frame() %>%
+  # Remove players from playoff teams who were released before the playoffs
+  filter(!(name %in% c("Chaundee Brown Jr.", "Enes Freedom", "Jabari Parker", "Kelan Martin", "Devon Dotson",
+                   "Marquese Chriss", "Theo Pinson", "Langston Galloway", "Willie Cauley-Stein", "Denzel Valentine")))
 
-# Update reference dataset for Ben Simmons new team
-team_ref[181,2] <- "BKN"
+# Update for Ben Simmons new team
+team_ref[31,3] <- "BKN"
+# Update for Bledsoe new team
+team_ref[392,3] <- "POR"
 # Add row for Kawhi
-team_ref[503,1] <- "202695"
-team_ref[503,2] <- "LAC"
-team_ref[503,3] <- 20
+team_ref[493,1] <- "202695"
+team_ref[493,2] <- "Kawhi Leonard"
+team_ref[493,3] <- "LAC"
+team_ref[493,4] <- 20
+# Add row for Nik Stauskas
+team_ref[494,1] <- "203917"
+team_ref[494,2] <- "Nik Stauskas"
+team_ref[494,3] <- "BOS"
+team_ref[494,4] <- 20
 
-matchups <- matchups %>%
-  merge(team_ref %>% select(1:2),
+# Merge current team into matchup dataset
+matchups <- matchups2 %>%
+  merge(team_ref %>% select(1:3),
         by.x = "def_player_id",
         by.y = "entity_id",
-        all.x = T) %>%
-  select(-2)
-
+        all.x = T)
+  
 
 ## Create metric list
 metric_choices <- c(
@@ -113,7 +126,7 @@ ui <- navbarPage(
                     fluidRow(
                       column(12,
                              wellPanel(
-                               style = "background-color: ghostwhite; border-color: #2c3e50; height: 360px;",
+                               style = "background-color: ghostwhite; border-color: #2c3e50; height: 47%;",
                                fluidRow(
                                  column(6,
                                         radioButtons(inputId = "radio",
@@ -166,21 +179,20 @@ ui <- navbarPage(
                     fluidRow(
                       column(12,
                              wellPanel(
-                               style = "background-color: ghostwhite; border-color: #2c3e50; height: 420px;",
+                               style = "background-color: ghostwhite; border-color: #2c3e50; height: 53%;",
                                tabsetPanel(type = "tabs",
-                                           tabPanel("Selected", DTOutput("selected_table", width = 640)),
-                                           tabPanel("Top 10 Defenders", DTOutput("top_perf", width = 640)),
-                                           tabPanel("Bottom 10 Defenders", DTOutput("bot_perf", width = 640)),
-                                           tabPanel("Most Frequent", DTOutput("top_vol", width = 640))))))),
+                                           tabPanel("Selected", DTOutput("selected_table")),
+                                           tabPanel("Top 10 Defenders", DTOutput("top_perf")),
+                                           tabPanel("Bottom 10 Defenders", DTOutput("bot_perf")),
+                                           tabPanel("Most Frequent", DTOutput("top_vol"))))))),
              column(6,
                     wellPanel(
-                      style = "background-color: ghostwhite; border-color: #2c3e50; height: 795px;",
+                      style = "background-color: ghostwhite; border-color: #2c3e50; height: 800px;",
                       fluidRow(
                         column(12,
-                               mainPanel(
+                               # mainPanel(
                                  plotOutput("plot1",
-                                            height = 760,
-                                            width = 620)))))))),
+                                            height = 760))))))),
   tabPanel("About", icon = icon("bars"),
            fluidRow(
              column(12,
@@ -271,7 +283,7 @@ ui <- navbarPage(
 #       column(12,
 #              p('Data used to generate this app was obtained from ', tags$a(href = "https://tracking.pbpstats.com/", 'PBP Stats Tracking', target = '_blank'),
 #                'by way of the ', tags$a(href = "https://www.nba.com/stats/articles/nba-com-stats-unveils-improved-matchup-data-for-2019-20-season/", 'NBA matchup tracking data', '.', target = '_blank'), style = "font-size: 75%"),
-#              p('App created by Alex Merg. Code can be found on my ', tags$a(href = "https://github.com/cjteeter/ShinyTeeter/tree/master/3_MastersGolf", 'GitHub', target = '_blank'), '.',  style = "font-size: 75%"),
+#              p('App created by Alex Merg. Code can be found on my ', tags$a(href = "", 'GitHub', target = '_blank'), '.',  style = "font-size: 75%"),
 #              p('Have a question? Spot an error? Send me an ', tags$a(href = "mailto:mergaj10@gmail.com", 'email', target = '_blank'), '.', style = "font-size: 75%"),
 #              p(tags$em("Last updated: April 2022"), style = 'font-size:65%')))
 #   )
@@ -285,7 +297,7 @@ server <- function(input, output, session) {
   output$about <- renderUI({
     tags$iframe(seamless="seamless", 
                 src= "alexandermerg/matchup_finder_about.html",
-                width=800, 
+                width=1000, 
                 height=800)
   })
   
@@ -1301,12 +1313,12 @@ server <- function(input, output, session) {
                                stripeClasses = F,
                                lengthChange = F,
                                scrollY = '255px',
-                               scrollX = T,
+                               scrollX = '540px',
                                scrollCollapse = T,
                                order = list(6, 'desc'),
                                # autoWidth = T,
                                columnDefs = list(
-                                 list(width = '55px', targets = c(2,4,5)),
+                                 list(width = '55px', targets = c(2,4,5,6)),
                                  list(width = '140px', targets = c(0)),
                                  list(className = "dt-left", targets = 0),
                                  list(className = "dt-right", targets = 4),
@@ -1328,12 +1340,12 @@ server <- function(input, output, session) {
                                stripeClasses = F,
                                lengthChange = F,
                                scrollY = '240px',
-                               scrollX = T,
+                               scrollX = '540px',
                                scrollCollapse = T,
                                order = list(6, 'desc'),
                                # autoWidth = T,
                                columnDefs = list(
-                                 list(width = '55px', targets = c(2,4,5)),
+                                 list(width = '55px', targets = c(2,4,5,6)),
                                  list(width = '140px', targets = c(0)),
                                  list(className = "dt-left", targets = 0),
                                  list(className = "dt-right", targets = 4),
@@ -1368,7 +1380,7 @@ server <- function(input, output, session) {
                              order = list(6, 'desc'),
                              # autoWidth = T,
                              columnDefs = list(
-                               list(width = '55px', targets = c(2,4,5)),
+                               list(width = '55px', targets = c(2,4,5,6)),
                                list(width = '140px', targets = c(0)),
                                list(className = "dt-left", targets = 0),
                                list(className = "dt-right", targets = 4),
@@ -1397,7 +1409,7 @@ server <- function(input, output, session) {
                              order = list(6, 'asc'),
                              # autoWidth = T,
                              columnDefs = list(
-                               list(width = '55px', targets = c(2,4,5)),
+                               list(width = '55px', targets = c(2,4,5,6)),
                                list(width = '140px', targets = c(0)),
                                list(className = "dt-left", targets = 0),
                                list(className = "dt-right", targets = 4),
@@ -1425,7 +1437,7 @@ server <- function(input, output, session) {
                              order = list(6, 'desc'),
                              # autoWidth = T,
                              columnDefs = list(
-                               list(width = '55px', targets = c(2,4,5)),
+                               list(width = '55px', targets = c(2,4,5,6)),
                                list(width = '140px', targets = c(0)),
                                list(className = "dt-left", targets = 0),
                                list(className = "dt-right", targets = 4),

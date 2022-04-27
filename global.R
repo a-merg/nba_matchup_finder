@@ -1,7 +1,7 @@
 
 ### --- Notes: Playoff Matchups --- ###
 
-setwd("~/Data Science/Basketball/Projects/Teams/BOS Interview")
+setwd("/Users/alexandermerg/Data Science/Basketball/Projects/Matchup App/matchup_finder")
 
 # Load files downloaded from PBP stats
 my_files <- list.files(pattern = "*.csv")
@@ -13,13 +13,15 @@ abrev_files <- gsub(".csv", "", my_files)
 # names(file_list) <- paste0(basename(file_path_sans_ext(my_files)))
 
 for(i in abrev_files){
-  filepath <- file.path("/Users/alexandermerg/Data Science/Basketball/Projects/Teams/BOS Interview",paste(i,".csv",sep=""))
+  filepath <- file.path("/Users/alexandermerg/Data Science/Basketball/Resources/Data/Matchups",paste(i,".csv",sep=""))
   assign(i, read.csv(filepath))
 }
 
 # Add season and regular season/playoffs distinctions to dataset
 matchups_pi_21$type <- "playoffs"
-matchups_pi_21$season <- "2021"
+matchups_pi_21$season <- "2022"
+matchups_pi_22$type <- "playoffs"
+matchups_pi_22$season <- "2022"
 matchups_reg_18$type <- "reg"
 matchups_reg_18$season <- "2018"
 matchups_reg_19$type <- "reg"
@@ -38,10 +40,12 @@ matchups_yoffs_20$type <- "playoffs"
 matchups_yoffs_20$season <- "2020"
 matchups_yoffs_21$type <- "playoffs"
 matchups_yoffs_21$season <- "2021"
+matchups_yoffs_22$type <- "playoffs"
+matchups_yoffs_22$season <- "2022"
 
 # Bind into a combined matchup dataset
-matchups <- rbind(matchups_pi_21, matchups_reg_18, matchups_reg_19, matchups_reg_20, matchups_reg_21, matchups_reg_22,
-                  matchups_yoffs_18, matchups_yoffs_19, matchups_yoffs_20, matchups_yoffs_21)
+matchups <- rbind(matchups_pi_21, matchups_pi_22, matchups_reg_18, matchups_reg_19, matchups_reg_20, matchups_reg_21, matchups_reg_22,
+                  matchups_yoffs_18, matchups_yoffs_19, matchups_yoffs_20, matchups_yoffs_21, matchups_yoffs_22)
 
 
 write.csv(matchups, file = paste0("matchups.csv"))
@@ -106,15 +110,15 @@ write.csv(name_ref, file = paste0("name_ref.csv"))
 ## Merge player and team names into dataset
 
 matchups2 <- matchups %>%
-  mutate(across(1:6, as.character)) %>%
+  # mutate(across(1:6, as.character)) %>%
   # Add defensive player names
-  merge(name_ref %>% select(1:2),
+  merge(name_ref %>% select(2:3),
         by.x = "def_player_id",
         by.y = "entity_id",
         all.x = T) %>%
   rename(def_player = name) %>%
   # Add offensive player names
-  merge(name_ref %>% select(1:2),
+  merge(name_ref %>% select(2:3),
         by.x = "off_player_id",
         by.y = "entity_id",
         all.x = T) %>%
@@ -135,15 +139,16 @@ matchups2 <- matchups %>%
   mutate(matchup_sec = period_to_seconds(ms(matchup_min)),
          matchup_min = matchup_sec/60) %>%
   # Reorder columns
-  select(26, 29, 27:28, 25, 24, 30, 7:23, 1:4, 6) %>%
+  select(25, 28, 26:27, 24, 23, 29, 6:22, 1:5) %>%
   # Change numbers to numeric format
   mutate(across(matchup_sec:sfl, as.numeric))
 
 
 
-write.csv(matchups2, file = paste0("matchups.csv"))
+write.csv(matchups2, file = paste0("matchups2.csv"))
 
-matchups <- read.csv("~/Data Science/Basketball/Projects/Playoff Matchups/playoff_matchups/matchups.csv")
+
+matchups <- read.csv("matchups.csv")
 
 
 ## Create list of all unique players

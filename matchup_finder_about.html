@@ -169,8 +169,8 @@ pre code {
 
 <div id="the-dataset" class="section level3">
 <h3>The Dataset</h3>
-<p>Starting in 2017-18, the NBA began publishing data that tracked the time each player spent guarding opposing players during a game, as well as the counting stats accumulated by the player and his team during that time. As a result, player performance in any given matchup is available across multiple seasons, including the playoffs. This app provides querying functionality for this data and summarizes the performance of each player selected.</p>
-<p>Important to note, the algorithm used to track this matchup level data was updated in advance of the 2019-20 season. Most notable of these updates was field goal attempts being attributed to the defender who is matched up to the offensive player at the time of the shot, rather than the player that defended the shot taker for the majority of the possession. Given the issues this presents for the 2017-18 and 2018-19 data, those seasons are excluded from the default settings on the dashboard. However, they are available to include if the user chooses.</p>
+<p>Starting in 2017-18, the NBA began publishing data that tracked the time each player spent guarding opposing players during a game, as well as the counting stats accumulated by the offensive player and his team during that time. As a result, player performance in any given matchup is available across multiple seasons, including the playoffs. This app provides querying functionality for this data and summarizes the performance of each player selected.</p>
+<p>Note, the algorithm used to track this matchup level data was updated in advance of the 2019-20 season. Most notable of these updates was field goal attempts being attributed to the defender who is matched up to the offensive player at the time of the shot, rather than the player that defended the shot taker for the majority of the possession. Given the issues this presents for the 2017-18 and 2018-19 data, those seasons are excluded from the default settings on the dashboard. However, they are available to include if the user chooses.</p>
 <p>More information on NBA matchup tracking as well as the updates made prior to the 2019-20 season can be found <a href="https://www.nba.com/stats/articles/nba-com-stats-unveils-improved-matchup-data-for-2019-20-season/">here</a>.</p>
 </div>
 <div id="metrics" class="section level3">
@@ -209,15 +209,15 @@ pre code {
 </div>
 <div id="plot" class="section level3">
 <h3>Plot</h3>
-<p>Displays offensive player’s performance against each listed defender for the selected metric. Offensive player’s metric average across all matchups in the seasons selected is also plotted as a vertical perforated line for reference.</p>
-<p>Additional contextual features include the sample size of possessions for each matchup, as well as the 3pt% shot by the offensive player. Given the high degree of “make-or-miss” inherent in NBA 3pt shooting and the impact that 3pt% variance has on scoring results (particularly with low samples), offensive player 3pt% for each matchup is included as a contextual element to consider whether extreme 3pt% variance may have an impact on certain results (point colored grey if no 3pt attempts).</p>
+<p>Displays offensive player performance against each listed defender for the selected metric. Offensive player’s average across all matchups for a given metric in the seasons selected is also plotted as a vertical perforated line for reference.</p>
+<p>Additional contextual features include the sample size of possessions for each matchup, as well as the 3pt% shot by the offensive player while being guarded by the defender. Given the high degree of “make-or-miss” inherent in NBA 3pt shooting and the impact that 3pt% variance has on scoring results (particularly with low samples), offensive player 3pt% is included to consider whether extreme 3pt% variance may have an impact on matchup results (note, points on the plot colored grey denote matchups in which there were no 3pt attempts).</p>
 </div>
 <div id="table" class="section level3">
 <h3>Table</h3>
 <ul>
 <li><strong>Possessions</strong>: Sum of possessions (partial and full) in which defender was guarding offensive player for selected time period.</li>
 <li><strong>% of Time Defended</strong>: The percent of time both players were on the floor and the defender was guarding the offensive player</li>
-<li><strong>Shots per 100</strong>: Included to represent how aggressive the offensive player was from a scoring perspective in a given matchup</li>
+<li><strong>Shots per 100</strong>: Included for context as to how aggressive the offensive player was from a scoring perspective in a given matchup</li>
 <li><strong>3pt %</strong>: Included to consider whether extreme 3pt% variance may be impacting results (if blank, player hasn’t attempted a 3pt shot in a given matchup)</li>
 <li><strong>Percent Rank</strong>: How defender compares to all other defenders guarding the offensive player for the selected metric over the selected period</li>
 </ul>
@@ -226,6 +226,7 @@ pre code {
 <h3>Odds &amp; Ends</h3>
 <p>Data used to generate this app was obtained from <a href="https://tracking.pbpstats.com/">PBP Stats Tracking</a> by way of <a href="https://www.nba.com/stats/">NBA.com</a></p>
 <p>App created by Alex Merg. Data and code available on <a href="https://github.com/a-merg/nba_matchup_finder">GitHub</a>.</p>
+<p>Data includes games played through April 25, 2022</p>
 <p><br /></p>
 </div>
 
